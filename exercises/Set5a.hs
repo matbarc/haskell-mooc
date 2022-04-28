@@ -344,17 +344,6 @@ fromBin (O b) = 0 + 2 * fromBin b
 fromBin (I b) = 1 + 2 * fromBin b
 
 toBin :: Int -> Bin
-toBin n = toBin' n (largest2Pow n) 
-
-toBin' :: Int -> Int -> Bin
-toBin' 0 _  = End 
-toBin' n bit = 
-	if n >= pow 
-	then I (toBin' (n-pow) (bit-1))
-	else O (toBin' n (bit-1))
-	where pow = 2^bit
-
-largest2Pow :: Int -> Int
-largest2Pow n = length (takeWhile (<n) [2^i | i <- [1..]])
-
+toBin 0 = O End
+toBin n = inc (toBin $ n-1) 
 
