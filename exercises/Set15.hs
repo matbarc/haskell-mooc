@@ -7,6 +7,7 @@ import Control.Applicative
 import Data.Char
 import Text.Read (readMaybe)
 
+import Data.Maybe
 ------------------------------------------------------------------------------
 -- Ex 1: Sum two Maybe Int values using Applicative operations (i.e.
 -- liftA2 and pure). Don't use pattern matching.
@@ -242,7 +243,33 @@ data Expression = Plus Arg Arg | Minus Arg Arg
   deriving (Show, Eq)
 
 parseExpression :: String -> Validation Expression
-parseExpression = todo
+parseExpression s = expr <$> checkArg left <*> checkOp op <*> checkArg right
+  where [left, op, right] = words s
+
+expr :: String -> String -> String -> Expression
+expr l op r
+  | op == "+" = Plus a b
+  | op == "-" = Minus a b
+  where
+    a = getArg l
+    b = getArg r
+
+getArg :: String -> Arg
+getArg s
+  | isNum s = Number (fromJust $ readMaybe s)
+  | isVar s = Variable (head s)
+
+checkArg x = numVal <|> varVal
+  where
+    numVal = check (isNum x) ("Invalid number: " ++ x) x
+    varVal = check (isVar x) ("Invalid variable: " ++ x) x
+
+isNum s = all isDigit s
+isVar s = length s == 1 && (isAlpha $ head s)
+
+
+checkOp :: String -> Validation String
+checkOp op = check (op == "+" || op == "-") ("Invalid operation: " ++ op) op
 
 ------------------------------------------------------------------------------
 -- Ex 10: The Priced T type tracks a value of type T, and a price
